@@ -1,7 +1,7 @@
 // BackgroundWrapper.js
 
 import React from 'react';
-import backgroundImg from './images/football.jpeg';
+import backgroundImg from './images/basketball court.jpeg';
 
 const BackgroundWrapper = ({ children }) => {
     const wrapperStyle = {
