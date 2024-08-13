@@ -1,21 +1,35 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login as auth_login
 from django.views.generic import TemplateView
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 class IndexView(TemplateView):
     template_name = "index.html"
 
 
-def register(request):
+@csrf_exempt
+def signup_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
-            return redirect('home')  # Redirect to a home page or any other page
-    else:
-        form = UserCreationForm()
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            email = data.get('email')
+            password1 = data.get('password1')
+            password2 = data.get('password2')
 
-    return render(request, 'users/register.html', {'form': form})
+            if password1 != password2:
+                return JsonResponse({'error': 'Passwords do not match'}, status=400)
+
+            if User.objects.filter(username=username).exists():
+                return JsonResponse({'error': 'Username already taken'}, status=400)
+
+            user = User.objects.create_user(username=username, email=email, password=password1)
+            user.save()
+
+            return JsonResponse({'message': 'User created successfully!'}, status=201)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid data format'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

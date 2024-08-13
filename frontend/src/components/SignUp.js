@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link from React Router
+import {Link} from 'react-router-dom'; // Import Link from React Router
 import './SignUp.css';
 
 const SignUp = () => {
@@ -46,12 +46,11 @@ const SignUp = () => {
             setError('');
             setSigningUp(true); // Start sign-up process
             try {
-                const response = await axios.post('http://localhost:9124/add-user', null, {
-                    params: {
-                        username,
-                        password,
-                        email
-                    }
+                const response = await axios.post('http://localhost:8000/signup/', {
+                    username,
+                    password1: password,
+                    password2: password, // Send password twice for confirmation
+                    email
                 });
                 console.log('Signup successful:', response.data);
                 setSuccess(true); // Set success state to true
@@ -63,6 +62,7 @@ const SignUp = () => {
             }
         }
     };
+
 
     return (
         <div className="signup-container">
