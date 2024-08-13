@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './LoginComponent.css';
+import './Login.css';
 import {Link} from "react-router-dom";
 import axios from "axios";
 
@@ -79,7 +79,6 @@ const Login = () => {
             <div className="button-container">
                 <button onClick={handleSubmit}>Sign In</button>
                 <button onClick={handleSignUp}>Sign Up</button>
-                <button onClick={startWithoutSignIn}>Start without Sign In</button>
             </div>
         </div>
     );

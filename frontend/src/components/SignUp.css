@@ -51,7 +51,7 @@ form {
     padding: 12px;
     border: none;
     border-radius: 5px;
-    background-color: #7ecc7e;
+    background-color: coral;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -60,7 +60,7 @@ form {
 }
 
 button:hover {
-    background-color: green;
+    background-color: orange;
 }
 
 .upper-left-button {

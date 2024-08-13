@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './components/Login';
-import signUp from './components/signUp';
+import Login from './components/Login.js';
+import SignUp from './components/SignUp.js';
+import BackgroundWrapper from './BackgroundWrapper.js';
 import './App.css'; // Import your CSS file
-import BackgroundWrapper from './BackgroundWrapper'; // Import the BackgroundWrapper component
 
 
 const App = () => {
@@ -15,8 +15,7 @@ const App = () => {
                 <div className="app-container">
                     <Routes>
                         <Route path="/" element={<Login />} />
-                        <Route path="/signup" element={<signUp />} />
-
+                        <Route path="/signup" element={<SignUp />} />
                     </Routes>
                 </div>
             </Router>
