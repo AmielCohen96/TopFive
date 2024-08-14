@@ -1,0 +1,32 @@
+.homepage-container {
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    background-color: #333;
+    padding: 10px;
+}
+
+.navbar-item {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.navbar-item:hover {
+    background-color: #555;
+}
+
+.content {
+    padding: 20px;
+    /* Add more styling as needed */
+}
+
+.navbar-item.logout {
+    padding: 5px 10px; /* Smaller padding for logout button */
+    font-size: 14px;   /* Smaller font size for logout button */
+    color: red;        /* Optional: Red color for emphasis */
+}
