@@ -29,7 +29,9 @@ class Coach(models.Model):
     name = models.CharField(max_length=100)
     defense = models.IntegerField(default=get_default_defense)
     offense = models.IntegerField(default=get_default_offense)
-    # No team field here to avoid confusion
+
+    def __str__(self):
+        return self.name
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
@@ -43,8 +45,8 @@ class Player(models.Model):
     shooting2 = models.IntegerField(default=get_default_stat)
     jumping = models.IntegerField(default=get_default_stat)
     defense = models.IntegerField(default=get_default_stat)
-    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True)
-    rating = models.IntegerField(editable=False, default=0)  # Use editable=False if you don't want to edit this field
+    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True, related_name='players_set')
+    rating = models.IntegerField(editable=False, default=0)
 
     @property
     def rating(self):
@@ -53,29 +55,32 @@ class Player(models.Model):
 
     def update_stats(self, speed=None, strength=None, stamina=None, shooting3=None, shooting2=None, jumping=None,
                      defense=None):
-        if speed:
+        if speed is not None:
             self.speed = speed
-        if strength:
+        if strength is not None:
             self.strength = strength
-        if stamina:
+        if stamina is not None:
             self.stamina = stamina
-        if shooting3:
+        if shooting3 is not None:
             self.shooting3 = shooting3
-        if shooting2:
+        if shooting2 is not None:
             self.shooting2 = shooting2
-        if jumping:
+        if jumping is not None:
             self.jumping = jumping
-        if defense:
+        if defense is not None:
             self.defense = defense
         self.save()
+
+    def __str__(self):
+        return self.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
     manager = models.CharField(max_length=100)
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='teams')
-    players = models.ManyToManyField(Player, related_name='teams', blank=True)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='coached_teams')
+    players = models.ManyToManyField(Player, related_name='teams_set', blank=True)
     budget = models.IntegerField(default=1000000)
-    league = models.ForeignKey('League', on_delete=models.CASCADE)
+    league = models.ForeignKey('League', on_delete=models.CASCADE, related_name='league_teams')
     points = models.IntegerField(default=0)
     position = models.IntegerField(null=True, blank=True)
     average_rating = models.IntegerField(default=0)
@@ -118,26 +123,14 @@ class Team(models.Model):
     def edit_arena(self, new_arena):
         self.arena = new_arena
         self.save()
-class CustomUser(AbstractUser):
-    team_name = models.CharField(max_length=100, blank=True, null=True)
 
-    def edit_points(self, new_points):
-        self.points = new_points
-        self.save()
-    class Meta:
-        app_label = 'topFive'
-        # Ensure that CustomUser is used instead of the default User model
-        verbose_name = 'Custom User'
-        verbose_name_plural = 'Custom Users'
-
-    def edit_position(self, new_position):
-        self.position = new_position
-        self.save()
+    def __str__(self):
+        return self.name
 
 class League(models.Model):
     name = models.CharField(max_length=100)
     level = models.IntegerField()
-    teams = models.ManyToManyField(Team, related_name='leagues', blank=True)
+    teams = models.ManyToManyField(Team, related_name='leagues_set', blank=True)
 
     def add_team(self, team):
         if self.teams.count() < 10:
@@ -150,18 +143,18 @@ class League(models.Model):
 
     def get_standings(self):
         return sorted(self.teams.all(), key=lambda x: x.points, reverse=True)
-    # Override the related_name attributes for the reverse relationships
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='customuser_set',  # Ensure unique related_name
-        blank=True,
-        help_text='The groups this user belongs to.',
-        related_query_name='customuser'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='customuser_set',  # Ensure unique related_name
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_query_name='customuser'
-    )
+
+    def __str__(self):
+        return self.name
+
+class CustomUser(AbstractUser):
+    team_name = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        app_label = 'topFive'
+        verbose_name = 'Custom User'
+        verbose_name_plural = 'Custom Users'
+
+    def __str__(self):
+
+        return self.username
