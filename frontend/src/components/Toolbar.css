@@ -1,0 +1,46 @@
+/* Toolbar.css */
+
+.toolbar {
+    background-color: black;
+    color: orange;
+    padding: 10px;
+}
+
+.toolbar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin-right: 15px;
+}
+
+.nav-item a {
+    color: orange;
+    text-decoration: none;
+}
+
+.nav-item a:hover {
+    text-decoration: underline;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px; /* Adjust spacing between buttons if needed */
+}
+
+.auth-button {
+    background-color: orange;
+    border: none;
+    color: black;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.auth-button:hover {
+    background-color: darkorange;
+}

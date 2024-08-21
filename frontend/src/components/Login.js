@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import './Login.css';
-import {Link} from "react-router-dom";
-import axios from "axios";
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
-
-
-const Login = () => {
+const Login = ({ setIsLoggedIn }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { message } = location.state || {};
 
     const handleUsernameChange = (event) => {
         setUsername(event.target.value);
@@ -19,45 +20,34 @@ const Login = () => {
     };
 
     const handleSubmit = async (event) => {
-        console.log('Username:', username);
-        console.log('Password:', password);
-
         event.preventDefault();
+
         try {
-            const response = await axios.post('http://localhost:9124/login', null,{params: {
-                    username,
-                    password
-                }});
-            console.log('Login response:', response.data);
+            const response = await axios.post('http://localhost:8000/login/', {
+                username,
+                password,
+            });
+
             if (response.data.success) {
-                console.log("good")
-                // window.location.href = '/stream-page';
-                window.location.href = `/stream-page?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-                // Redirect to dashboard
+                setIsLoggedIn(true);
+                navigate('/home');
             } else {
-                console.log("bad")
                 setError('Invalid username or password');
             }
         } catch (error) {
             console.error('Login failed:', error);
             setError('Login failed. Please try again.');
         }
-
     };
 
-    const startWithoutSignIn = () => {
-        console.log('without')
-        window.location.href = '/without-login-stream';
-    }
-
     const handleSignUp = () => {
-        console.log('Redirecting to sign up page...');
-        window.location.href = '/signup';
+        navigate('/signup');
     };
 
     return (
         <div className="login-container">
             <h2>Login</h2>
+            {message && <p className="success-message">{message}</p>}
             <div className="input-container">
                 <span>Username </span>
                 <input
@@ -80,8 +70,10 @@ const Login = () => {
                 <button onClick={handleSubmit}>Sign In</button>
                 <button onClick={handleSignUp}>Sign Up</button>
             </div>
+            {error && <p className="error-message">{error}</p>}
         </div>
     );
 };
 
 export default Login;
+
