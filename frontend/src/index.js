@@ -1,19 +1,6 @@
 import React from 'react';
-import './index.css';
-import App from './App.js'; // Add the .js extension
-import reportWebVitals from './reportWebVitals.js';
 import ReactDOM from 'react-dom/client';
+import App from './App.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <React.StrictMode>
-        <meta name="csrf-token" content="{{ csrf_token }}"/>
-        <App/>
-    </React.StrictMode>
-);
-
-reportWebVitals();
-
-
-
-
+root.render(<App />);

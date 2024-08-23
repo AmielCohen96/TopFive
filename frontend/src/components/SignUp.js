@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import {Link, Navigate, useNavigate} from 'react-router-dom';
 import './SignUp.css';
 
 const SignUp = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [password2, setPassword2] = useState('');
     const [email, setEmail] = useState('');
-    const [name, setName] = useState(''); // New field
-    const [lastName, setLastName] = useState(''); // New field
-    const [teamName, setTeamName] = useState(''); // New field
+    const [firstName, setName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [teamName, setTeamName] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [signingUp, setSigningUp] = useState(false);
+    const [csrfToken, setCsrfToken] = useState('');
+    const navigate = useNavigate(); // Add this line
 
     const handleUsernameChange = (event) => setUsername(event.target.value);
     const handlePasswordChange = (event) => setPassword(event.target.value);
+    const handlePassword2Change = (event) => setPassword2(event.target.value);
     const handleEmailChange = (event) => setEmail(event.target.value);
-    const handleNameChange = (event) => setName(event.target.value); // New handler
-    const handleLastNameChange = (event) => setLastName(event.target.value); // New handler
-    const handleTeamNameChange = (event) => setTeamName(event.target.value); // New handler
+    const handleNameChange = (event) => setName(event.target.value);
+    const handleLastNameChange = (event) => setLastName(event.target.value);
+    const handleTeamNameChange = (event) => setTeamName(event.target.value);
 
     const validateForm = () => {
         if (!username) {
@@ -30,11 +34,15 @@ const SignUp = () => {
             setError('Password must be at least 6 characters long and include both letters and numbers');
             return false;
         }
+        if (password2 !== password) {
+            setError('Password must be same');
+            return false;
+        }
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
             setError('Please enter a valid email address');
             return false;
         }
-        if (!name) {
+        if (!firstName) {
             setError('Please enter your name');
             return false;
         }
@@ -49,66 +57,53 @@ const SignUp = () => {
         return true;
     };
 
-    const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (validateForm()) {
-        setError('');
-        setSigningUp(true);
-        try {
-            const response = await axios.post('http://localhost:8000/signup/', {
-                username,
-                password: password, // Change from password1 and password2 to password
-                email,
-                first_name: name,   // Map name to first_name
-                last_name: lastName, // Map lastName to last_name
-                team_name: teamName  // Map teamName to team_name
+    useEffect(() => {
+        axios.get('http://localhost:8000/get-csrf-token/')
+            .then(response => {
+                setCsrfToken(response.data.csrfToken);
+            })
+            .catch(error => {
+                console.error('Error fetching CSRF token:', error);
             });
-            console.log('Signup successful:', response.data);
-            setSuccess(true);
-        } catch (error) {
-            console.error('Signup failed:', error);
-            setError('Signup failed. Please try again.');
-        } finally {
-            setSigningUp(false);
+    }, []);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (validateForm()) {
+            setError('');
+            setSigningUp(true);
+            try {
+                const response = await axios.post('http://localhost:8000/signup/', {
+                    username,
+                    password,
+                    password2,
+                    email,
+                    first_name: firstName,   // Update this line
+                    last_name: lastName,     // Update this line
+                    team_name: teamName
+                }, {
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+                console.log('Signup successful:', response.data);
+                setSuccess(true);
+                navigate('/login');
+            } catch (error) {
+                console.error('Signup failed:', error);
+                setError('Signup failed. Please try again.');
+            } finally {
+                setSigningUp(false);
+            }
         }
-    }
-};
-
-
-//     const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     if (validateForm()) {
-//         setError('');
-//         setSigningUp(true);
-//         try {
-//             const response = await axios.post('http://localhost:8000/signup/', {
-//                 username,
-//                 password1: password,
-//                 password2: password,
-//                 email,
-//                 name,
-//                 lastName,
-//                 teamName
-//             });
-//             console.log('Signup successful:', response.data);
-//             setSuccess(true);
-//         } catch (error) {
-//             console.error('Signup failed:', error);
-//             setError('Signup failed. Please try again.');
-//         } finally {
-//             setSigningUp(false);
-//         }
-//     }
-// };
-//
-
+    };
 
     return (
         <div className="signup-container">
             {success ? (
                 <div className="success-message">
                     <p>Signup successful! You can now proceed to login.</p>
-                    <button><Link to="/">Back to Login</Link></button>
+                    <button><Link to="/login">Back to Login</Link></button>
                 </div>
             ) : (
                 <>
@@ -133,6 +128,15 @@ const SignUp = () => {
                             />
                         </div>
                         <div className="input-container">
+                            <span>Password Check:</span>
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password2}
+                                onChange={handlePassword2Change}
+                            />
+                        </div>
+                        <div className="input-container">
                             <span>Email:</span>
                             <input
                                 type="email"
@@ -142,11 +146,11 @@ const SignUp = () => {
                             />
                         </div>
                         <div className="input-container">
-                            <span>Name:</span>
+                            <span>First Name:</span>
                             <input
                                 type="text"
                                 placeholder="Name"
-                                value={name}
+                                value={firstName}
                                 onChange={handleNameChange}
                             />
                         </div>
@@ -179,3 +183,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+

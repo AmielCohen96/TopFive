@@ -2,36 +2,96 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
 
+from django.db.models.signals import post_save
+
+
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=50, unique=True)
+    email = models.EmailField(unique=True)
+
+    USERNAME_FIELD = 'username'
+
+    team_name = models.CharField(max_length=100, blank=True, null=True)
+
+    def edit_points(self, new_points):
+        self.points = new_points
+        self.save()
+
+    class Meta:
+        app_label = 'topFive'
+        verbose_name = 'Custom User'
+        verbose_name_plural = 'Custom Users'
+
+    def edit_position(self, new_position):
+        self.position = new_position
+        self.save()
+
+    def __str__(self):
+        return self.username
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    email = models.EmailField(unique=True)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+
+    full_name = models.CharField(max_length=100)
+    bio = models.TextField(max_length=500, blank=True)
+    verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.full_name
+
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
+post_save.connect(create_user_profile, sender=CustomUser)
+post_save.connect(save_user_profile, sender=CustomUser)
+
+
 # Functions to generate default values
 def get_default_defense():
     return random.randint(60, 100)
 
+
 def get_default_offense():
     return random.randint(60, 100)
+
 
 def get_default_age():
     return random.randint(17, 39)
 
+
 def get_default_height():
     return round(random.uniform(1.78, 2.22), 2)
+
 
 def get_default_position():
     return random.randint(1, 5)
 
+
 def get_default_stat():
     return random.randint(60, 100)
 
+
 def get_default_level():
     return random.randint(1, 5)
+
 
 # Models
 class Coach(models.Model):
     name = models.CharField(max_length=100)
     defense = models.IntegerField(default=get_default_defense)
     offense = models.IntegerField(default=get_default_offense)
+    # No team field here to avoid confusion
 
-    def __str__(self):
-        return self.name
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
@@ -45,42 +105,40 @@ class Player(models.Model):
     shooting2 = models.IntegerField(default=get_default_stat)
     jumping = models.IntegerField(default=get_default_stat)
     defense = models.IntegerField(default=get_default_stat)
-    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True, related_name='players_set')
-    rating = models.IntegerField(editable=False, default=0)
+    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True)
+    rating = models.IntegerField(editable=False, default=0)  # Use editable=False if you don't want to edit this field
 
     @property
-    def rating(self):
+    def rating_(self):
         return int((self.speed + self.strength + self.stamina + self.shooting3 + self.shooting2 +
                     self.jumping + self.defense) / 7)
 
     def update_stats(self, speed=None, strength=None, stamina=None, shooting3=None, shooting2=None, jumping=None,
                      defense=None):
-        if speed is not None:
+        if speed:
             self.speed = speed
-        if strength is not None:
+        if strength:
             self.strength = strength
-        if stamina is not None:
+        if stamina:
             self.stamina = stamina
-        if shooting3 is not None:
+        if shooting3:
             self.shooting3 = shooting3
-        if shooting2 is not None:
+        if shooting2:
             self.shooting2 = shooting2
-        if jumping is not None:
+        if jumping:
             self.jumping = jumping
-        if defense is not None:
+        if defense:
             self.defense = defense
         self.save()
 
-    def __str__(self):
-        return self.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
     manager = models.CharField(max_length=100)
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='coached_teams')
-    players = models.ManyToManyField(Player, related_name='teams_set', blank=True)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='teams')
+    players = models.ManyToManyField(Player, related_name='teams', blank=True)
     budget = models.IntegerField(default=1000000)
-    league = models.ForeignKey('League', on_delete=models.CASCADE, related_name='league_teams')
+    league = models.ForeignKey('League', on_delete=models.CASCADE)
     points = models.IntegerField(default=0)
     position = models.IntegerField(null=True, blank=True)
     average_rating = models.IntegerField(default=0)
@@ -124,13 +182,11 @@ class Team(models.Model):
         self.arena = new_arena
         self.save()
 
-    def __str__(self):
-        return self.name
 
 class League(models.Model):
     name = models.CharField(max_length=100)
     level = models.IntegerField()
-    teams = models.ManyToManyField(Team, related_name='leagues_set', blank=True)
+    teams = models.ManyToManyField(Team, related_name='leagues', blank=True)
 
     def add_team(self, team):
         if self.teams.count() < 10:
@@ -144,17 +200,18 @@ class League(models.Model):
     def get_standings(self):
         return sorted(self.teams.all(), key=lambda x: x.points, reverse=True)
 
-    def __str__(self):
-        return self.name
-
-class CustomUser(AbstractUser):
-    team_name = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        app_label = 'topFive'
-        verbose_name = 'Custom User'
-        verbose_name_plural = 'Custom Users'
-
-    def __str__(self):
-
-        return self.username
+    # Override the related_name attributes for the reverse relationships
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='customuser_set',  # Ensure unique related_name
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_query_name='customuser'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='customuser_set',  # Ensure unique related_name
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_query_name='customuser'
+    )

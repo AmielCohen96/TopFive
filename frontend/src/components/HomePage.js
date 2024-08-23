@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
 const HomePage = () => {
+
     return (
         <div>
             <div className="home-content">
-                <h1>Welcome to the Homepage</h1>
+                <h1>Welcome</h1>
                 <p>Some content here...</p>
                 {/* More homepage content */}
             </div>

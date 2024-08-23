@@ -1,61 +1,39 @@
-from django.contrib.auth import authenticate, login, logout
-from django.views.generic import TemplateView
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.http import JsonResponse
-from topFive.user_serializer import UserSerializer
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse, HttpResponse
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .models import CustomUser
+from .user_serializer import MyTokenObtainSerializer, RegisterSerializer
 
 
-class IndexView(TemplateView):
-    template_name = "index.html"
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    permission_classes = [AllowAny, ]
+    serializer_class = RegisterSerializer
 
-@csrf_exempt
-def signup_view(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            serializer = UserSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse({'message': 'User created successfully!'}, status=201)
-            # Include the errors in the response for debugging
-            return JsonResponse({'errors': serializer.errors}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid data format'}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': get_token(request)})
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainSerializer
+
 
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            password = data.get('password')
-
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return JsonResponse({'success': True})
-            else:
-                return JsonResponse({'success': False, 'error': 'Invalid username or password'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid data format'}, status=400)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
-
-
-# def logout_view(request):
-#     if request.method == 'POST':
-#         logout(request)
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False}, status=400)
-
-
-@csrf_exempt
-def logout_view(request):
-    if request.method == 'POST':
-        logout(request)
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False}, status=400)
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return HttpResponse("Login successful")
+        else:
+            return HttpResponse("Invalid credentials", status=400)
+    return HttpResponse("Invalid request method", status=405)

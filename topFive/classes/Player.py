@@ -5,21 +5,21 @@ fake = Faker()
 
 
 class Player:
-    def __init__(self, name, age, height, position, speed, strength, stamina, shooting3, shooting2, jumping, defense):
-        self.name = name
-        self.age = age
-        self.height = height
-        self.position = position
-        self.speed = speed
-        self.strength = strength
-        self.stamina = stamina
-        self.shooting3 = shooting3
-        self.shooting2 = shooting2
-        self.jumping = jumping
-        self.defense = defense
-        self.team = None
-        self.rating = int((self.speed + self.strength + self.stamina + self.shooting3 + self.shooting2 +
-                           self.jumping + self.defense) / 7)
+#     def __init__(self, name, age, height, position, speed, strength, stamina, shooting3, shooting2, jumping, defense):
+#         self.name = name
+#         self.age = age
+#         self.height = height
+#         self.position = position
+#         self.speed = speed
+#         self.strength = strength
+#         self.stamina = stamina
+#         self.shooting3 = shooting3
+#         self.shooting2 = shooting2
+#         self.jumping = jumping
+#         self.defense = defense
+#         self.team = None
+#         self.rating = int((self.speed + self.strength + self.stamina + self.shooting3 + self.shooting2 +
+#                            self.jumping + self.defense) / 7)
 
     def __init__(self, name=None, age=None, height=None, position=None, speed=None, strength=None, stamina=None,
                  shooting3=None, shooting2=None, jumping=None, defense=None):

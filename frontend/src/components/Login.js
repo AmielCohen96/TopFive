@@ -1,79 +1,40 @@
-import React, { useState } from 'react';
+import React, {useContext} from 'react';
 import './Login.css';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import AuthContext from "../context/AuthContext.js";
 
-const Login = ({ setIsLoggedIn }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { message } = location.state || {};
+const Login = () => {
 
-    const handleUsernameChange = (event) => {
-        setUsername(event.target.value);
-    };
+const {loginUser} = useContext(AuthContext);
+const handleSubmit = e => {
+    e.preventDefault();
+    const username = e.target.elements.username.value;
+    const password = e.target.elements.password.value;
 
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-    };
+    if (username.length > 0) {
+        loginUser(username, password);
+    }
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+}
 
-        try {
-            const response = await axios.post('http://localhost:8000/login/', {
-                username,
-                password,
-            });
-
-            if (response.data.success) {
-                setIsLoggedIn(true);
-                navigate('/home');
-            } else {
-                setError('Invalid username or password');
-            }
-        } catch (error) {
-            console.error('Login failed:', error);
-            setError('Login failed. Please try again.');
-        }
-    };
-
-    const handleSignUp = () => {
-        navigate('/signup');
-    };
 
     return (
         <div className="login-container">
             <h2>Login</h2>
-            {message && <p className="success-message">{message}</p>}
-            <div className="input-container">
-                <span>Username </span>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={handleUsernameChange}
-                />
-            </div>
-            <div className="input-container">
-                <span>Password </span>
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                />
-            </div>
-            <div className="button-container">
-                <button onClick={handleSubmit}>Sign In</button>
-                <button onClick={handleSignUp}>Sign Up</button>
-            </div>
-            {error && <p className="error-message">{error}</p>}
+            <form onSubmit={handleSubmit}>
+                <div className="input-container">
+                    <span>Username </span>
+                    <input type="text" name="username" placeholder="Username" />
+                </div>
+                <div className="input-container">
+                    <span>Password </span>
+                    <input type="password" name="password" placeholder="Password" />
+                </div>
+                <div className="button-container">
+                    <button type="submit">Sign In</button>
+                </div>
+            </form>
         </div>
     );
 };
 
 export default Login;
-
