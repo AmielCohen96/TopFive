@@ -18,14 +18,9 @@ const App = () => {
                     <div className="app-container">
                         <Toolbar />
                         <Routes>
-                            <Route path="/home" element={<HomePage />} />
+                            <Route path="/" element={<HomePage />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<SignUp />} />
-                            <Route
-                                path="/home"
-                                element={<PrivateRoute element={<HomePage />} />}
-                            />
-                            {/* Other private routes can be added here */}
                         </Routes>
                     </div>
                 </AuthProvider>

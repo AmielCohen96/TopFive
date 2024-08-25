@@ -66,37 +66,43 @@ const SignUp = () => {
                 console.error('Error fetching CSRF token:', error);
             });
     }, []);
+const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (validateForm()) {
+        setError('');
+        setSigningUp(true);
+        try {
+            const response = await axios.post('http://localhost:8000/signup/', {
+                username,
+                password,
+                password2,
+                email,
+                first_name: firstName,
+                last_name: lastName,
+                team_name: teamName
+            }, {
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        if (validateForm()) {
-            setError('');
-            setSigningUp(true);
-            try {
-                const response = await axios.post('http://localhost:8000/signup/', {
-                    username,
-                    password,
-                    password2,
-                    email,
-                    first_name: firstName,   // Update this line
-                    last_name: lastName,     // Update this line
-                    team_name: teamName
-                }, {
-                    headers: {
-                        'X-CSRFToken': csrfToken
-                    }
-                });
-                console.log('Signup successful:', response.data);
-                setSuccess(true);
-                navigate('/login');
-            } catch (error) {
-                console.error('Signup failed:', error);
+            console.log('Signup successful:', response.data);
+            setSuccess(true);
+            navigate('/login');
+        } catch (error) {
+            console.error('Signup failed:', error);
+            if (error.response && error.response.data) {
+                const errorMessages = error.response.data;
+                // Extract error messages from backend response and format them
+                setError(Object.values(errorMessages).join(' '));
+            } else {
                 setError('Signup failed. Please try again.');
-            } finally {
-                setSigningUp(false);
             }
+        } finally {
+            setSigningUp(false);
         }
-    };
+    }
+};
 
     return (
         <div className="signup-container">

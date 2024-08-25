@@ -20,7 +20,7 @@ const Toolbar = () => {
                         </>
                     )}
                     <li className="nav-item">
-                        {isLoggedIn ? (
+                    {isLoggedIn ? (
                             <button onClick={logoutUser} className="auth-button">Logout</button>
                         ) : (
                             <>

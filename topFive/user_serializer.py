@@ -1,5 +1,7 @@
+
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from topFive.models import CustomUser
@@ -31,25 +33,33 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'username', 'password', 'password2', 'first_name', 'last_name', 'team_name']
+        fields = ['username', 'password', 'password2', 'email', 'first_name', 'last_name', 'team_name']
 
     def validate(self, attrs):
-        # Ensure all required fields are present
-        required_fields = ['username', 'email', 'password', 'first_name', 'last_name', 'team_name']
-        for field in required_fields:
-            if field not in attrs:
-                raise serializers.ValidationError({field: f"{field} is required."})
-
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        # Check if the email is already in use
+        if CustomUser.objects.filter(email=attrs['email']).exists():
+            raise ValidationError("This email address is already in use.")
+
+        # Check if the username is already in use
+        if CustomUser.objects.filter(username=attrs['username']).exists():
+            raise ValidationError("This username is already in use.")
+
+        # Check if the team name is already in use
+        if CustomUser.objects.filter(team_name=attrs['team_name']).exists():
+            raise ValidationError("This team name is already in use.")
+
         return attrs
 
     def create(self, validated_data):
+        # Remove the password2 field
         validated_data.pop('password2')
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
-            email=validated_data['email'],
             password=validated_data['password'],
+            email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             team_name=validated_data['team_name'],

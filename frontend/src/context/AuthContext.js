@@ -26,7 +26,10 @@ export const AuthProvider = ({ children }) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({
+                username : username,
+                password : password,
+            }),
         });
 
         const data = await response.json();
@@ -35,38 +38,50 @@ export const AuthProvider = ({ children }) => {
             setAuthTokens(data);
             setUser(jwtDecode(data.access));
             localStorage.setItem("authTokens", JSON.stringify(data));
+            console.log("Login successfully")
             navigate("/home");
         } else {
-            alert("Please try again");
+            if (password !== data.password || user !== data.user) {
+                console.log("Wrong password or username");
+            }
         }
     };
 
-    const registerUser = async (email, username, password, password2,first_name, last_name,team_name) => {
+ const registerUser = async (username, password, password2, email, first_name, last_name, team_name) => {
+    try {
         const response = await fetch("http://127.0.0.1:8000/signup/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password, password2,email,first_name, last_name,team_name
-            }),
+            body: JSON.stringify({ username, password, password2, email, first_name, last_name, team_name }),
         });
 
         if (response.status === 201) {
-            navigate("/login");
+            return null; // No error
         } else {
-            alert("Please try again");
+            const errorData = await response.json();
+            // Handle error response from backend
+            console.log("Error:", errorData);
+            return errorData.detail;
         }
-    };
+    } catch (error) {
+        console.error("Signup error:", error.message);
+        // Return the error message for displaying
+        return "An unexpected error occurred. Please try again.";
+    }
+};
+
 
     const logoutUser = () => {
         setAuthTokens(null);
         setUser(null);
         localStorage.removeItem("authTokens");
-        if(authTokens === null && user === null){
-            alert("You have logged out");
-            navigate("/login");
+        console.log("You have logged out");
 
-        }
+        navigate("/login");
+
+
     };
 
     const isLoggedIn = !!user;  // Use this to determine if the user is logged in
