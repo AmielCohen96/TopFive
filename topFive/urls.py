@@ -17,4 +17,6 @@ urlpatterns = [
     path('transfer-players/', views.get_transfer_players, name='transfer_players'),
     path('current-balance/', views.get_current_balance, name='current-balance'),
     path('buy-player/', views.buy_player, name='buy-player'),
+    path('my-coach/', views.get_my_coach, name='my-coach'),
+    path('my-players/', views.get_my_players, name='my-players'),
 ]

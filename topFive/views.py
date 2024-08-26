@@ -163,3 +163,23 @@ def buy_player(request):
     except Team.DoesNotExist:
         return Response({'error': 'Team not found'}, status=404)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_my_coach(request):
+    team = Team.objects.get(user=request.user)
+    coach = team.coach
+    return Response({
+        'name': coach.name,
+        'defense': coach.defense,
+        'offense': coach.offense,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_my_players(request):
+    team = Team.objects.get(user=request.user)
+    players = team.players.all()
+    serializer = PlayerSerializer(players, many=True)
+    return Response(serializer.data)

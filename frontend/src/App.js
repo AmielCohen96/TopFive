@@ -11,6 +11,7 @@ import './App.css';
 import Toolbar from './components/Toolbar.js';
 import HomePage from './components/HomePage.js';
 import Transfers from './components/Transfers.js'; // ייבוא הקומפוננטה החדשה
+import MyTeam from './components/MyTeam.js';
 
 const App = () => {
     return (
@@ -24,7 +25,8 @@ const App = () => {
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<SignUp />} />
                             <Route path="/league" element={<League />} />
-                            <Route path="/transfers" element={<Transfers />} /> {/* הוספת הנתיב החדש */}
+                            <Route path="/transfers" element={<Transfers />} />
+                            <Route path="/my-team" element={<MyTeam />} />
                         </Routes>
                     </div>
                 </AuthProvider>
