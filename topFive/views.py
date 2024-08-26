@@ -9,6 +9,9 @@ from .user_serializer import MyTokenObtainSerializer, RegisterSerializer
 from rest_framework import status, generics
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 import random
 
 
@@ -70,3 +73,30 @@ def login_view(request):
     return HttpResponse("Invalid request method", status=405)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_league_teams(request):
+    user = request.user
+    if not user.team_name:
+        return Response({'error': 'User does not have a team assigned.'}, status=400)
+
+    try:
+        user_team = Team.objects.get(user=user)
+        league = user_team.league
+        teams = league.get_standings()
+        sorted_teams = sorted(teams, key=lambda x: (-x.points, x.name))
+        league_teams_data = [
+            {
+                'position': index + 1,
+                'name': team.name,
+                'manager_name': team.manager,
+                'points': team.points
+            }
+            for index, team in enumerate(sorted_teams)
+        ]
+        return Response(league_teams_data, status=200)
+
+    except Team.DoesNotExist:
+        return Response({'error': 'Team not found for user.'}, status=404)
+    except League.DoesNotExist:
+        return Response({'error': 'League not found.'}, status=404)

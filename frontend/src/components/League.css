@@ -1,0 +1,45 @@
+.league-container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #f0f4f8; /* רקע רגוע */
+    padding: 20px;
+    border-radius: 8px; /* קצוות מעוגלים */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* הצללה עדינה */
+}
+
+.league-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff; /* צבע רקע לבן לטבלה */
+    border-radius: 8px; /* קצוות מעוגלים לטבלה */
+    overflow: hidden; /* לוודא שקצוות מעוגלים פועלים גם בטבלה */
+}
+
+.league-table th, .league-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px; /* שינוי גודל גופן */
+    color: #333; /* צבע טקסט כהה */
+}
+
+.league-table th {
+    background-color: #e0e7ef; /* צבע רקע לכותרות הטבלה */
+    font-weight: bold;
+}
+
+.league-table tr:nth-child(even) {
+    background-color: #f8fafc; /* צבע רקע שונה לשורות זוגיות */
+}
+
+.league-table tr:hover {
+    background-color: #e9f3ff; /* צבע רקע כאשר עכבר מעל השורה */
+}
+
+.league-table tr.bottom-two {
+    background-color: #ffccd5; /* צבע שונה לשני האחרונות */
+}
+
+.league-table tr.border-row td {
+    border-bottom: 2px solid black;
+}

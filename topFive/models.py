@@ -140,9 +140,7 @@ class Team(models.Model):
     position = models.IntegerField(null=True, blank=True)
     average_rating = models.IntegerField(default=0)
     arena = models.CharField(max_length=100)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)  # קישור למשתמש
-
-
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
 
     def add_player(self, player):
         if self.players.count() < 13:

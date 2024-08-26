@@ -9,11 +9,9 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
     path("token/verify/", TokenVerifyView.as_view(), name='token_verify'),
     path("csrf/", views.get_csrf_token, name='csrf_token'),
-
     path('signup/', users_views.RegisterView.as_view(), name='signup'),
     path('get-csrf-token/', get_csrf_token, name='get_csrf_token'),
-
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view, name='logout'),
-
+    path('league-teams/', views.get_league_teams, name='league_teams'),
 ]
