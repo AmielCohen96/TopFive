@@ -132,8 +132,6 @@ def get_current_balance(request):
 def buy_player(request):
     user = request.user
     player_id = request.data.get('player_id')
-    print(request.data)
-    print(request.data.get('player_id'))
     try:
         player = Player.objects.get(id=player_id, transfer_list=True)
         user_team = Team.objects.get(user=user)
