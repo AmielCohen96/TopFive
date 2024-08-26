@@ -132,7 +132,8 @@ def get_current_balance(request):
 def buy_player(request):
     user = request.user
     player_id = request.data.get('player_id')
-
+    print(request.data)
+    print(request.data.get('player_id'))
     try:
         player = Player.objects.get(id=player_id, transfer_list=True)
         user_team = Team.objects.get(user=user)
@@ -183,3 +184,23 @@ def get_my_players(request):
     players = team.players.all()
     serializer = PlayerSerializer(players, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_team_info(request):
+    try:
+        team = Team.objects.get(user=request.user)
+        players = team.players.all()  # קבלת כל השחקנים של הקבוצה
+        player_serializer = PlayerSerializer(players, many=True)  # סריאליזציה של השחקנים
+        return Response({
+            'team_name': team.name,
+            'manager': team.manager,
+            'arena': team.arena,
+            'points': team.points,
+            'position': team.position,
+            'budget': team.budget,  # הוספת תקציב לתגובה
+            'players': player_serializer.data,  # הוספת שחקנים לתגובה
+        }, status=200)
+    except Team.DoesNotExist:
+        return Response({'error': 'Team not found for user.'}, status=404)

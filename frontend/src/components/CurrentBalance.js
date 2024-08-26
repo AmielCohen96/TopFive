@@ -1,11 +1,10 @@
-// CurrentBalance.js
+// frontend/src/components/CurrentBalance.js
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext.js';
 import './CurrentBalance.css';
 
-const CurrentBalance = () => {
-    const [balance, setBalance] = useState(0);
+const CurrentBalance = ({ balance, setBalance }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { authTokens } = useContext(AuthContext);
@@ -18,7 +17,7 @@ const CurrentBalance = () => {
                         'Authorization': `Bearer ${authTokens.access}`
                     }
                 });
-                setBalance(response.data.balance);
+                setBalance(response.data.balance); // עדכון ה-balance עם הערך החדש
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -27,7 +26,7 @@ const CurrentBalance = () => {
         };
 
         fetchBalance();
-    }, [authTokens]);
+    }, [authTokens, setBalance]);
 
     if (loading) return <p>Loading balance...</p>;
     if (error) return <p>{error}</p>;
@@ -40,4 +39,3 @@ const CurrentBalance = () => {
 };
 
 export default CurrentBalance;
-
