@@ -29,8 +29,10 @@ def create_leagues_and_teams():
         league = League.objects.create(name=name, level=idx + 1)
         leagues.append(league)
 
+    free_agents = []  # רשימת שחקנים חופשיים
+
     for league in leagues:
-        for _ in range(10):
+        for _ in range(10):  # יצירת 10 קבוצות בכל ליגה
             coach = Coach.objects.create(name=fake.first_name() + ' ' + fake.last_name())
             players = [Player.objects.create(name=fake.first_name() + ' ' + fake.last_name()) for _ in range(10)]
             team = Team.objects.create(
@@ -44,28 +46,26 @@ def create_leagues_and_teams():
             team.players.set(players)
             for player in players:
                 player.team = team
-                player.save()
+                player.save()  # שחקנים עם קבוצות לא חופשיים (free agents)
             team.update_average_rating()
             team.save()
 
             # הוסף את הקבוצה לליגה
             league.teams.add(team)  # שורה זו מוסיפה את הקבוצה לליגה דרך שדה ה-ManyToMany של הליגה
 
-    # יצירת 100 שחקנים נוספים שאינם משויכים לקבוצה
+    # יצירת 100 שחקנים נוספים שאינם משויכים לקבוצה (שחקנים חופשיים)
     for _ in range(100):
-        Player.objects.create(name=fake.first_name() + ' ' + fake.last_name())
+        player = Player.objects.create(name=fake.first_name() + ' ' + fake.last_name())
+        free_agents.append(player)
 
-    # עדכון כל השחקנים ללא שם ושיוך לקבוצה
-    players = Player.objects.all()
-    for player in players:
-        if not player.name:
-            player.name = fake.first_name() + ' ' + fake.last_name()
-        if not player.team:
-            team = Team.objects.order_by('?').first()  # בוחר קבוצה רנדומלית
-            player.team = team
-        player.save()
+    # עדכון כל השחקנים החופשיים
+    for player in free_agents:
+        player.save()  # חישוב ה-rating והמחיר לכל שחקן חופשי
 
     # עדכון דירוג ממוצע של כל הקבוצות
     teams = Team.objects.all()
     for team in teams:
         team.update_average_rating()
+
+
+

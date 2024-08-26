@@ -95,6 +95,7 @@ class Player(models.Model):
     age = models.IntegerField(default=get_default_age)
     height = models.FloatField(default=get_default_height)
     position = models.IntegerField(default=get_default_position)
+    position_name = models.CharField(max_length=20, blank=True, editable=False)  # שדה חדש לעמדת השחקן
     speed = models.IntegerField(default=get_default_stat)
     strength = models.IntegerField(default=get_default_stat)
     stamina = models.IntegerField(default=get_default_stat)
@@ -103,12 +104,42 @@ class Player(models.Model):
     jumping = models.IntegerField(default=get_default_stat)
     defense = models.IntegerField(default=get_default_stat)
     team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True)
-    rating = models.IntegerField(editable=False, default=0)  # Use editable=False if you don't want to edit this field
+    rating = models.IntegerField(editable=False, default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    transfer_list = models.BooleanField(default=True)
+    free_agent = models.BooleanField(default=True)
 
     @property
     def rating_(self):
         return int((self.speed + self.strength + self.stamina + self.shooting3 + self.shooting2 +
                     self.jumping + self.defense) / 7)
+
+    def save(self, *args, **kwargs):
+        # עדכון ה-rating, price, position_name, transfer_list ו-free_agent
+        self.rating = self.rating_
+        self.price = self.calculate_price()
+        self.position_name = self.get_position_name()  # קביעת position_name על בסיס position
+        self.transfer_list = False if self.team else True
+        self.free_agent = False if self.team else True
+        super(Player, self).save(*args, **kwargs)
+
+    def get_position_name(self):
+        """מחזירה את שם העמדה לפי הערך של position"""
+        position_names = {
+            1: "Point Guard",
+            2: "Shooting Guard",
+            3: "Small Forward",
+            4: "Power Forward",
+            5: "Center"
+        }
+        return position_names.get(self.position, "Unknown Position")
+
+    def calculate_price(self):
+        """חישוב מחיר השחקן על פי רייטינג וגיל"""
+        base_price = 100000
+        age_factor = max(0, (30 - self.age))
+        rating_factor = self.rating_ ** 2
+        return base_price + (rating_factor * 1000) + (age_factor * 500)
 
     def update_stats(self, speed=None, strength=None, stamina=None, shooting3=None, shooting2=None, jumping=None,
                      defense=None):
@@ -127,6 +158,9 @@ class Player(models.Model):
         if defense:
             self.defense = defense
         self.save()
+
+    def __str__(self):
+        return f"{self.name} ({self.position_name})"
 
 
 class Team(models.Model):
