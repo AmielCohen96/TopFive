@@ -11,6 +11,7 @@ const SignUp = () => {
     const [firstName, setName] = useState('');
     const [lastName, setLastName] = useState('');
     const [teamName, setTeamName] = useState('');
+    const [arenaName, setArenaName] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [signingUp, setSigningUp] = useState(false);
@@ -24,6 +25,7 @@ const SignUp = () => {
     const handleNameChange = (event) => setName(event.target.value);
     const handleLastNameChange = (event) => setLastName(event.target.value);
     const handleTeamNameChange = (event) => setTeamName(event.target.value);
+    const handleArenaNameChange = (event) => setArenaName(event.target.value);
 
     const validateForm = () => {
         if (!username) {
@@ -79,7 +81,8 @@ const handleSubmit = async (event) => {
                 email,
                 first_name: firstName,
                 last_name: lastName,
-                team_name: teamName
+                team_name: teamName,
+                arena_name: arenaName
             }, {
                 headers: {
                     'X-CSRFToken': csrfToken
@@ -176,6 +179,15 @@ const handleSubmit = async (event) => {
                                 placeholder="Team Name"
                                 value={teamName}
                                 onChange={handleTeamNameChange}
+                            />
+                        </div>
+                        <div className="input-container">
+                            <span>Arena Name:</span>
+                            <input
+                                type="text"
+                                placeholder="Arena Name"
+                                value={arenaName}
+                                onChange={handleArenaNameChange}
                             />
                         </div>
                         {error && <p className="error-message">{error}</p>}

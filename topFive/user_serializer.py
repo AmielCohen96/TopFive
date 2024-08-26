@@ -1,9 +1,7 @@
-
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 from topFive.models import CustomUser
 
 
@@ -30,10 +28,12 @@ class MyTokenObtainSerializer(TokenObtainPairSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    team_name = serializers.CharField(max_length=100, required=True)
+    arena_name = serializers.CharField(max_length=100, required=True)
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'password2', 'email', 'first_name', 'last_name', 'team_name']
+        fields = ['username', 'password', 'password2', 'email', 'first_name', 'last_name', 'team_name', 'arena_name']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -55,6 +55,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Remove the password2 field
+
         validated_data.pop('password2')
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
@@ -63,5 +64,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             team_name=validated_data['team_name'],
+            arena_name=validated_data['arena_name'],
         )
         return user

@@ -48,6 +48,9 @@ def create_leagues_and_teams():
             team.update_average_rating()
             team.save()
 
+            # הוסף את הקבוצה לליגה
+            league.teams.add(team)  # שורה זו מוסיפה את הקבוצה לליגה דרך שדה ה-ManyToMany של הליגה
+
     # יצירת 100 שחקנים נוספים שאינם משויכים לקבוצה
     for _ in range(100):
         Player.objects.create(name=fake.first_name() + ' ' + fake.last_name())

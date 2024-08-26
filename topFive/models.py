@@ -1,17 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
-
 from django.db.models.signals import post_save
 
 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
-
-    USERNAME_FIELD = 'username'
-
     team_name = models.CharField(max_length=100, blank=True, null=True)
+    arena_name = models.CharField(max_length=100, blank=True, null=True)
+    USERNAME_FIELD = 'username'
 
     def edit_points(self, new_points):
         self.points = new_points
@@ -34,7 +32,6 @@ class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-
     full_name = models.CharField(max_length=100)
     bio = models.TextField(max_length=500, blank=True)
     verified = models.BooleanField(default=False)
@@ -143,6 +140,9 @@ class Team(models.Model):
     position = models.IntegerField(null=True, blank=True)
     average_rating = models.IntegerField(default=0)
     arena = models.CharField(max_length=100)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)  # קישור למשתמש
+
+
 
     def add_player(self, player):
         if self.players.count() < 13:

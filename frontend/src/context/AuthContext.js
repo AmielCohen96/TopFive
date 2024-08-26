@@ -47,14 +47,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
- const registerUser = async (username, password, password2, email, first_name, last_name, team_name) => {
+ const registerUser = async (username, password, password2, email, first_name, last_name, team_name, arena_name) => {
     try {
         const response = await fetch("http://127.0.0.1:8000/signup/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password, password2, email, first_name, last_name, team_name }),
+            body: JSON.stringify({ username, password, password2, email, first_name, last_name, team_name, arena_name }),
         });
 
         if (response.status === 201) {

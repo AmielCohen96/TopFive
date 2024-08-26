@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_bootstrap5',
     'rest_framework.authtoken',
 

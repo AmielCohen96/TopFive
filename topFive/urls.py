@@ -1,9 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
-
 from . import views as users_views, views
 from django.contrib.auth import views as auth_views
-
 from .views import get_csrf_token
 
 urlpatterns = [
