@@ -9,9 +9,12 @@ from .user_serializer import MyTokenObtainSerializer, RegisterSerializer
 from rest_framework import status, generics
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.http import JsonResponse
+from .models import Player
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from .player_serializer import PlayerSerializer
 import random
 
 
@@ -77,10 +80,9 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 def get_league_teams(request):
     user = request.user
-    if not user.team_name:
-        return Response({'error': 'User does not have a team assigned.'}, status=400)
 
     try:
+        # Get the user's team
         user_team = Team.objects.get(user=user)
         league = user_team.league
         teams = league.get_standings()
@@ -100,3 +102,64 @@ def get_league_teams(request):
         return Response({'error': 'Team not found for user.'}, status=404)
     except League.DoesNotExist:
         return Response({'error': 'League not found.'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_transfer_players(request):
+    players = Player.objects.filter(transfer_list=True)
+    serializer = PlayerSerializer(players, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_current_balance(request):
+    user = request.user
+
+    try:
+        # Get the user's team
+        user_team = Team.objects.get(user=user)
+        # Return the current balance
+        return Response({'balance': user_team.budget}, status=200)
+
+    except Team.DoesNotExist:
+        return Response({'error': 'Team not found for user.'}, status=404)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def buy_player(request):
+    user = request.user
+    player_id = request.data.get('player_id')
+
+    try:
+        player = Player.objects.get(id=player_id, transfer_list=True)
+        user_team = Team.objects.get(user=user)
+
+        # Check if user has enough budget
+        if user_team.budget < player.price:
+            return Response({'error': 'Insufficient budget'}, status=400)
+
+        # Check if there is room in the team
+        if user_team.players.count() >= 13:
+            return Response({'error': 'No space in the team'}, status=400)
+
+        # Perform the purchase
+        user_team.budget -= player.price
+        user_team.add_player(player)
+        player.free_agent = False
+        player.team = user_team
+        player.save()
+        user_team.save()
+
+        return Response({
+            'message': 'Player bought successfully',
+            'new_balance': user_team.budget
+        }, status=200)
+
+    except Player.DoesNotExist:
+        return Response({'error': 'Player not found'}, status=404)
+    except Team.DoesNotExist:
+        return Response({'error': 'Team not found'}, status=404)
+

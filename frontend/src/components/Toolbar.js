@@ -1,3 +1,4 @@
+// frontend/src/components/Toolbar.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext.js';
@@ -17,10 +18,11 @@ const Toolbar = () => {
                             <li className="nav-item"><Link to="/my-team">My Team</Link></li>
                             <li className="nav-item"><Link to="/league">League</Link></li>
                             <li className="nav-item"><Link to="/statistics">Statistics</Link></li>
+                            <li className="nav-item"><Link to="/transfers">Transfers</Link></li> {/* הוספת תווית Transfers */}
                         </>
                     )}
                     <li className="nav-item">
-                    {isLoggedIn ? (
+                        {isLoggedIn ? (
                             <button onClick={logoutUser} className="auth-button">Logout</button>
                         ) : (
                             <>

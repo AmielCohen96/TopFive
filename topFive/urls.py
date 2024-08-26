@@ -14,4 +14,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view, name='logout'),
     path('league-teams/', views.get_league_teams, name='league_teams'),
+    path('transfer-players/', views.get_transfer_players, name='transfer_players'),
+    path('current-balance/', views.get_current_balance, name='current-balance'),
+    path('buy-player/', views.buy_player, name='buy-player'),
 ]

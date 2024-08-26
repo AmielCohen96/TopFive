@@ -93,9 +93,9 @@ class Coach(models.Model):
 class Player(models.Model):
     name = models.CharField(max_length=100)
     age = models.IntegerField(default=get_default_age)
-    height = models.FloatField(default=get_default_height)
+    height = models.DecimalField(default=get_default_height, decimal_places=2, max_digits=10)
     position = models.IntegerField(default=get_default_position)
-    position_name = models.CharField(max_length=20, blank=True, editable=False)  # שדה חדש לעמדת השחקן
+    position_name = models.CharField(max_length=20, blank=True, editable=False)
     speed = models.IntegerField(default=get_default_stat)
     strength = models.IntegerField(default=get_default_stat)
     stamina = models.IntegerField(default=get_default_stat)
@@ -136,10 +136,10 @@ class Player(models.Model):
 
     def calculate_price(self):
         """חישוב מחיר השחקן על פי רייטינג וגיל"""
-        base_price = 100000
+        base_price = 1000
         age_factor = max(0, (30 - self.age))
         rating_factor = self.rating_ ** 2
-        return base_price + (rating_factor * 1000) + (age_factor * 500)
+        return base_price + (rating_factor * 10) + (age_factor * 5)
 
     def update_stats(self, speed=None, strength=None, stamina=None, shooting3=None, shooting2=None, jumping=None,
                      defense=None):

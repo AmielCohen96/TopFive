@@ -1,3 +1,4 @@
+// frontend/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import PrivateRoute from './utils/PrivateRouthe.js';
@@ -9,6 +10,7 @@ import BackgroundWrapper from './BackgroundWrapper.js';
 import './App.css';
 import Toolbar from './components/Toolbar.js';
 import HomePage from './components/HomePage.js';
+import Transfers from './components/Transfers.js'; // ייבוא הקומפוננטה החדשה
 
 const App = () => {
     return (
@@ -22,6 +24,7 @@ const App = () => {
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<SignUp />} />
                             <Route path="/league" element={<League />} />
+                            <Route path="/transfers" element={<Transfers />} /> {/* הוספת הנתיב החדש */}
                         </Routes>
                     </div>
                 </AuthProvider>
