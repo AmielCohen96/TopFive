@@ -59,4 +59,4 @@ const LeagueTable = () => {
     );
 };
 
-export default LeagueTable;
+export default LeagueTable

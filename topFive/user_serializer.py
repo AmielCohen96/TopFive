@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from topFive.models import CustomUser
+from topFive.models import CustomUser, Match
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -67,3 +67,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             arena_name=validated_data['arena_name'],
         )
         return user
+
+
+class MatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Match
+        fields = '__all__'

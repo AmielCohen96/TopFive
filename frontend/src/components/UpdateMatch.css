@@ -1,0 +1,21 @@
+.update-match {
+    margin: 20px 0;
+}
+
+.update-match input {
+    margin-right: 10px;
+    padding: 5px;
+    width: 50px;
+}
+
+.update-match button {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.update-match button:hover {
+    background-color: #45a049;
+}

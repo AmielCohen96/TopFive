@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
 from django.db.models.signals import post_save
+from rest_framework.utils import timezone
 
 
 class CustomUser(AbstractUser):
@@ -220,6 +223,15 @@ class League(models.Model):
     level = models.IntegerField()
     teams = models.ManyToManyField(Team, related_name='leagues', blank=True)
 
+
+    def generate_matches(self):
+        teams = list(self.teams.all())
+        for i in range(len(teams)):
+            for j in range(i + 1, len(teams)):
+                # Each team plays twice against every other team
+                Match.objects.create(home_team=teams[i], away_team=teams[j], match_date=datetime.now())
+                Match.objects.create(home_team=teams[j], away_team=teams[i], match_date=datetime.now())
+
     def add_team(self, team):
         if self.teams.count() < 10:
             self.teams.add(team)
@@ -247,3 +259,33 @@ class League(models.Model):
         help_text='Specific permissions for this user.',
         related_query_name='customuser'
     )
+
+
+class Match(models.Model):
+    home_team = models.ForeignKey(Team, related_name='home_matches', on_delete=models.CASCADE)
+    away_team = models.ForeignKey(Team, related_name='away_matches', on_delete=models.CASCADE)
+    home_team_score = models.IntegerField(default=0)
+    away_team_score = models.IntegerField(default=0)
+    match_date = models.DateTimeField()
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.home_team.name} vs {self.away_team.name} on {self.match_date.strftime('%Y-%m-%d')}"
+
+    def update_scores(self, home_score, away_score):
+        self.home_team_score = home_score
+        self.away_team_score = away_score
+        self.completed = True
+        self.save()
+
+        # Update team points
+        if home_score > away_score:
+            self.home_team.points += 3
+        elif away_score > home_score:
+            self.away_team.points += 3
+        else:
+            self.home_team.points += 1
+            self.away_team.points += 1
+
+        self.home_team.save()
+        self.away_team.save()
