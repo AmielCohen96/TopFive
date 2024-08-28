@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
 from django.db.models.signals import post_save
-from rest_framework.utils import timezone
 
 
 class CustomUser(AbstractUser):
@@ -223,7 +222,6 @@ class League(models.Model):
     level = models.IntegerField()
     teams = models.ManyToManyField(Team, related_name='leagues', blank=True)
 
-
     def generate_matches(self):
         teams = list(self.teams.all())
         for i in range(len(teams)):
@@ -262,26 +260,55 @@ class League(models.Model):
 
 
 class Match(models.Model):
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
     home_team = models.ForeignKey(Team, related_name='home_matches', on_delete=models.CASCADE)
     away_team = models.ForeignKey(Team, related_name='away_matches', on_delete=models.CASCADE)
     home_team_score = models.IntegerField(default=0)
     away_team_score = models.IntegerField(default=0)
+    home_team_three_pointers = models.IntegerField(default=0)
+    away_team_three_pointers = models.IntegerField(default=0)
+    home_team_two_pointers = models.IntegerField(default=0)
+    away_team_two_pointers = models.IntegerField(default=0)
+    home_team_free_throws = models.IntegerField(default=0)
+    away_team_free_throws = models.IntegerField(default=0)
     match_date = models.DateTimeField()
     completed = models.BooleanField(default=False)
+    result = models.CharField(max_length=50, blank=True, default='Not Played')
 
     def __str__(self):
         return f"{self.home_team.name} vs {self.away_team.name} on {self.match_date.strftime('%Y-%m-%d')}"
 
-    def update_scores(self, home_score, away_score):
-        self.home_team_score = home_score
-        self.away_team_score = away_score
+    def update_scores(self, home_three_pointers=0, away_three_pointers=0,
+                      home_two_pointers=0, away_two_pointers=0,
+                      home_free_throws=0, away_free_throws=0):
+        self.home_team_three_pointers += home_three_pointers
+        self.away_team_three_pointers += away_three_pointers
+        self.home_team_two_pointers += home_two_pointers
+        self.away_team_two_pointers += away_two_pointers
+        self.home_team_free_throws += home_free_throws
+        self.away_team_free_throws += away_free_throws
+
+        # Calculate total points
+        self.home_team_score = (self.home_team_three_pointers * 3) + (
+                    self.home_team_two_pointers * 2) + self.home_team_free_throws
+        self.away_team_score = (self.away_team_three_pointers * 3) + (
+                    self.away_team_two_pointers * 2) + self.away_team_free_throws
+
+        # Set result
+        if self.home_team_score > self.away_team_score:
+            self.result = f"{self.home_team.name} wins {self.home_team_score} - {self.away_team_score}"
+        elif self.away_team_score > self.home_team_score:
+            self.result = f"{self.away_team.name} wins {self.away_team_score} - {self.home_team_score}"
+        else:
+            self.result = f"Draw {self.home_team_score} - {self.away_team_score}"
+
         self.completed = True
         self.save()
 
         # Update team points
-        if home_score > away_score:
+        if self.home_team_score > self.away_team_score:
             self.home_team.points += 3
-        elif away_score > home_score:
+        elif self.away_team_score > self.home_team_score:
             self.away_team.points += 3
         else:
             self.home_team.points += 1

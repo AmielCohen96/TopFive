@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from topFive.models import CustomUser, Match
+from topFive.models import CustomUser, Match, League, Team
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,7 +69,26 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+# Create a serializer for the League model
+# Create a serializer for the League model
+class LeagueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = League
+        fields = ['id', 'name', 'level']
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['id', 'name']
+
+
 class MatchSerializer(serializers.ModelSerializer):
+    home_team = TeamSerializer()  # Use nested serializer to include home team details
+    away_team = TeamSerializer()  # Use nested serializer to include away team details
+    league = LeagueSerializer()
+
     class Meta:
         model = Match
-        fields = '__all__'
+        fields = ['id', 'league', 'home_team', 'away_team', 'home_team_score', 'away_team_score', 'match_date',
+                  'completed']

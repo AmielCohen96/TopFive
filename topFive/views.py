@@ -1,12 +1,10 @@
-from datetime import timezone
-
 from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
-from django.shortcuts import render
 
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from rest_framework.generics import get_object_or_404
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import League, Team, CustomUser, Match
@@ -102,7 +100,6 @@ def get_league_teams(request):
             for index, team in enumerate(sorted_teams)
         ]
         return Response(league_teams_data, status=200)
-
 
 
     except Team.DoesNotExist:
@@ -210,9 +207,12 @@ def get_user_team_info(request):
     except Team.DoesNotExist:
         return Response({'error': 'Team not found for user.'}, status=404)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+
 class MatchViewSet(viewsets.ModelViewSet):
-    queryset = Match.objects.all()
     serializer_class = MatchSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        team = get_object_or_404(Team, user=user)
+        return Match.objects.filter(league=team.league)
