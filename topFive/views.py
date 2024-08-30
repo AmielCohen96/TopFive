@@ -3,6 +3,8 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
 
+from .tasks import simulate_matches_task
+
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from rest_framework.generics import get_object_or_404
 
@@ -216,3 +218,9 @@ class MatchViewSet(viewsets.ModelViewSet):
         user = self.request.user
         team = get_object_or_404(Team, user=user)
         return Match.objects.filter(league=team.league)
+
+
+@api_view(['POST'])
+def trigger_simulation(request):
+    simulate_matches_task.delay()  # Trigger the task asynchronously
+    return Response({"status": "Simulation started"}, status=202)

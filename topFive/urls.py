@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from . import views as users_views, views
 from django.contrib.auth import views as auth_views
-from .views import get_csrf_token, MatchViewSet
+from .views import get_csrf_token, MatchViewSet, trigger_simulation
 
 match_list = MatchViewSet.as_view({
     'get': 'list',
@@ -34,4 +34,5 @@ urlpatterns = [
     path('user-team-info/', views.get_user_team_info, name='user_team_info'),
     path('matches/', match_list, name='matches'),
     path('matches/<int:pk>/', match_detail, name='match_detail'),
+    path('simulate/', trigger_simulation, name='trigger_simulation')
 ]

@@ -272,6 +272,7 @@ class Match(models.Model):
     home_team_free_throws = models.IntegerField(default=0)
     away_team_free_throws = models.IntegerField(default=0)
     match_date = models.DateTimeField()
+    match_time = models.TimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
     result = models.CharField(max_length=50, blank=True, default='Not Played')
 
@@ -290,9 +291,9 @@ class Match(models.Model):
 
         # Calculate total points
         self.home_team_score = (self.home_team_three_pointers * 3) + (
-                    self.home_team_two_pointers * 2) + self.home_team_free_throws
+                self.home_team_two_pointers * 2) + self.home_team_free_throws
         self.away_team_score = (self.away_team_three_pointers * 3) + (
-                    self.away_team_two_pointers * 2) + self.away_team_free_throws
+                self.away_team_two_pointers * 2) + self.away_team_free_throws
 
         # Set result
         if self.home_team_score > self.away_team_score:
@@ -307,9 +308,12 @@ class Match(models.Model):
 
         # Update team points
         if self.home_team_score > self.away_team_score:
-            self.home_team.points += 3
+            self.home_team.points += 2
+            self.away_team.points += 1
+            self.result = f"{self.home_team.name} wins"
         elif self.away_team_score > self.home_team_score:
-            self.away_team.points += 3
+            self.away_team.points += 2
+            self.home_team.points += 1
         else:
             self.home_team.points += 1
             self.away_team.points += 1

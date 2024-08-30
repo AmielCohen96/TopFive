@@ -1,6 +1,8 @@
 import random
+import time
 from django.core.management.base import BaseCommand
 from topFive.models import Match
+
 
 class Command(BaseCommand):
     help = 'Simulates the matches and updates the results'
@@ -10,11 +12,13 @@ class Command(BaseCommand):
         simulate_all_matches()
         self.stdout.write(self.style.SUCCESS('Successfully simulated all matches'))
 
+
 def simulate_all_matches():
     matches = Match.objects.filter(completed=False)  # Get all incomplete matches
 
     for match in matches:
         simulate_game(match)
+
 
 def simulate_game(match):
     home_team = match.home_team
@@ -65,34 +69,31 @@ def simulate_game(match):
 
         if shot_successful:
             if attacking_team == home_team:
-                stats[f'home_{shot_type}_pointers'] += 1
+                if shot_type == 'three':
+                    stats['home_three_pointers'] += 1
+                elif shot_type == 'two':
+                    stats['home_two_pointers'] += 1
+                elif shot_type == 'free_throw':
+                    stats['home_free_throws'] += 1
             else:
-                stats[f'away_{shot_type}_pointers'] += 1
+                if shot_type == 'three':
+                    stats['away_three_pointers'] += 1
+                elif shot_type == 'two':
+                    stats['away_two_pointers'] += 1
+                elif shot_type == 'free_throw':
+                    stats['away_free_throws'] += 1
         else:
             rebound_result = handle_rebound(shot_missed=True,
                                             defending_player=random.choice(list(defending_team.players.all())))
             return rebound_result
 
-    for _ in range(100):  # Simulate 100 possessions
-        attacking_team, defending_team = random.choice([(home_team, away_team), (away_team, home_team)])
-        result = simulate_possession(attacking_team, defending_team)
+    # Simulate the game over the course of 1 minute
+    for _ in range(60):  # Simulate for 60 seconds
+        simulate_possession(home_team, away_team)
+        simulate_possession(away_team, home_team)
+        time.sleep(1)  # Wait 1 second between each possession
 
-        if result and result.startswith('home'):
-            if result == 'home_three_pointer':
-                stats['home_three_pointers'] += 1
-            elif result == 'home_two_pointer':
-                stats['home_two_pointers'] += 1
-            elif result == 'home_free_throw':
-                stats['home_free_throws'] += 1
-        elif result and result.startswith('away'):
-            if result == 'away_three_pointer':
-                stats['away_three_pointers'] += 1
-            elif result == 'away_two_pointer':
-                stats['away_two_pointers'] += 1
-            elif result == 'away_free_throw':
-                stats['away_free_throws'] += 1
-
-    # Update match scores
+    # Update the match with the simulated stats
     match.update_scores(
         home_three_pointers=stats['home_three_pointers'],
         away_three_pointers=stats['away_three_pointers'],
@@ -101,3 +102,4 @@ def simulate_game(match):
         home_free_throws=stats['home_free_throws'],
         away_free_throws=stats['away_free_throws']
     )
+

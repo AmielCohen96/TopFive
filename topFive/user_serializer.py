@@ -80,7 +80,7 @@ class LeagueSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'league']
 
 
 class MatchSerializer(serializers.ModelSerializer):

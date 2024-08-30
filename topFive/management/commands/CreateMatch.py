@@ -1,8 +1,11 @@
 import datetime
-from datetime import timedelta
-from django.core.management import BaseCommand
-from topFive.models import Team, Match, League
 import random
+from datetime import timedelta
+
+from django.core.management import BaseCommand
+
+from topFive.models import Match, League
+
 
 class Command(BaseCommand):
     help = 'Creates matches based on the league creation date'
@@ -12,8 +15,9 @@ class Command(BaseCommand):
         create_matches()
         self.stdout.write(self.style.SUCCESS('Successfully created matches'))
 
+
 def create_matches():
-    leagues = League.objects.all()  # Get all leagues
+    leagues = League.objects.all().order_by('-id')  # Get all leagues
 
     for league in leagues:
         teams = list(league.teams.all())  # Get all teams in the league
@@ -22,11 +26,10 @@ def create_matches():
 
         num_teams = len(teams)
         total_rounds = (num_teams - 1) * 2  # Total rounds needed to play each team twice
-        start_date = datetime.datetime.now() + timedelta(days=5)  # Start date for matches
-        end_date = start_date + timedelta(days=90)  # End date for matches
+        start_date = datetime.datetime.now() + timedelta(minutes=5)  # Start date for matches
 
         # Generate match dates
-        match_dates = [start_date + timedelta(days=round_num * 5) for round_num in range(total_rounds)]
+        match_dates = [start_date + timedelta(minutes=round_num * 5) for round_num in range(total_rounds)]
 
         # Helper function to generate the schedule for a given round
         def generate_round_robin_matches(teams, reverse_roles=False):
@@ -93,3 +96,6 @@ def create_matches():
             match_date_index += 1
             if match_date_index >= len(match_dates):
                 break
+
+
+
