@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext.js';
-import './TransferTable.css';
+import AuthContext from '../../context/AuthContext.js';
+import './TransferCss/TransferTable.css';
 
 const TransferTable = ({ onBuy }) => {
     const [players, setPlayers] = useState([]);

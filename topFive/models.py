@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
@@ -89,7 +88,6 @@ class Coach(models.Model):
     name = models.CharField(max_length=100)
     defense = models.IntegerField(default=get_default_defense)
     offense = models.IntegerField(default=get_default_offense)
-    # No team field here to avoid confusion
 
 
 class Player(models.Model):
@@ -117,16 +115,14 @@ class Player(models.Model):
                     self.jumping + self.defense) / 7)
 
     def save(self, *args, **kwargs):
-        # עדכון ה-rating, price, position_name, transfer_list ו-free_agent
         self.rating = self.rating_
         self.price = self.calculate_price()
-        self.position_name = self.get_position_name()  # קביעת position_name על בסיס position
+        self.position_name = self.get_position_name()
         self.transfer_list = False if self.team else True
         self.free_agent = False if self.team else True
         super(Player, self).save(*args, **kwargs)
 
     def get_position_name(self):
-        """מחזירה את שם העמדה לפי הערך של position"""
         position_names = {
             1: "Point Guard",
             2: "Shooting Guard",
@@ -137,7 +133,6 @@ class Player(models.Model):
         return position_names.get(self.position, "Unknown Position")
 
     def calculate_price(self):
-        """חישוב מחיר השחקן על פי רייטינג וגיל"""
         base_price = 1000
         age_factor = max(0, (30 - self.age))
         rating_factor = self.rating_ ** 2
@@ -226,7 +221,6 @@ class League(models.Model):
         teams = list(self.teams.all())
         for i in range(len(teams)):
             for j in range(i + 1, len(teams)):
-                # Each team plays twice against every other team
                 Match.objects.create(home_team=teams[i], away_team=teams[j], match_date=datetime.now())
                 Match.objects.create(home_team=teams[j], away_team=teams[i], match_date=datetime.now())
 
@@ -241,22 +235,6 @@ class League(models.Model):
 
     def get_standings(self):
         return sorted(self.teams.all(), key=lambda x: x.points, reverse=True)
-
-    # Override the related_name attributes for the reverse relationships
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='customuser_set',  # Ensure unique related_name
-        blank=True,
-        help_text='The groups this user belongs to.',
-        related_query_name='customuser'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='customuser_set',  # Ensure unique related_name
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_query_name='customuser'
-    )
 
 
 class Match(models.Model):
@@ -273,50 +251,75 @@ class Match(models.Model):
     away_team_free_throws = models.IntegerField(default=0)
     match_date = models.DateTimeField()
     match_time = models.TimeField(auto_now_add=True)
+    current_quarter = models.IntegerField(default=1)
+    quarter_scores = models.JSONField(default=dict)
     completed = models.BooleanField(default=False)
     result = models.CharField(max_length=50, blank=True, default='Not Played')
 
     def __str__(self):
         return f"{self.home_team.name} vs {self.away_team.name} on {self.match_date.strftime('%Y-%m-%d')}"
 
-    def update_scores(self, home_three_pointers=0, away_three_pointers=0,
-                      home_two_pointers=0, away_two_pointers=0,
-                      home_free_throws=0, away_free_throws=0):
-        self.home_team_three_pointers += home_three_pointers
-        self.away_team_three_pointers += away_three_pointers
-        self.home_team_two_pointers += home_two_pointers
-        self.away_team_two_pointers += away_two_pointers
-        self.home_team_free_throws += home_free_throws
-        self.away_team_free_throws += away_free_throws
+    def start_match(self):
+        self.completed = False
+        self.current_quarter = 1
+        self.quarter_scores = {1: (0, 0), 2: (0, 0), 3: (0, 0), 4: (0, 0), 'extra': (0, 0)}
+        self.save()
 
-        # Calculate total points
-        self.home_team_score = (self.home_team_three_pointers * 3) + (
-                self.home_team_two_pointers * 2) + self.home_team_free_throws
-        self.away_team_score = (self.away_team_three_pointers * 3) + (
-                self.away_team_two_pointers * 2) + self.away_team_free_throws
-
-        # Set result
-        if self.home_team_score > self.away_team_score:
-            self.result = f"{self.home_team.name} wins {self.home_team_score} - {self.away_team_score}"
-        elif self.away_team_score > self.home_team_score:
-            self.result = f"{self.away_team.name} wins {self.away_team_score} - {self.home_team_score}"
+    def end_match(self):
+        if self.home_team_score == self.away_team_score:
+            self.result = 'Draw - Extra Quarter'
         else:
-            self.result = f"Draw {self.home_team_score} - {self.away_team_score}"
-
+            self.result = 'Home Win' if self.home_team_score > self.away_team_score else 'Away Win'
         self.completed = True
         self.save()
 
-        # Update team points
-        if self.home_team_score > self.away_team_score:
-            self.home_team.points += 2
-            self.away_team.points += 1
-            self.result = f"{self.home_team.name} wins"
-        elif self.away_team_score > self.home_team_score:
-            self.away_team.points += 2
-            self.home_team.points += 1
-        else:
-            self.home_team.points += 1
-            self.away_team.points += 1
+    def record_basket(self, team, points):
+        if points == 3:
+            if team == self.home_team:
+                self.home_team_three_pointers += 1
+            else:
+                self.away_team_three_pointers += 1
+        elif points == 2:
+            if team == self.home_team:
+                self.home_team_two_pointers += 1
+            else:
+                self.away_team_two_pointers += 1
+        elif points == 1:
+            if team == self.home_team:
+                self.home_team_free_throws += 1
+            else:
+                self.away_team_free_throws += 1
 
-        self.home_team.save()
-        self.away_team.save()
+        self.update_scores()
+
+    def update_scores(self):
+        self.home_team_score = (self.home_team_three_pointers * 3 +
+                                self.home_team_two_pointers * 2 +
+                                self.home_team_free_throws)
+        self.away_team_score = (self.away_team_three_pointers * 3 +
+                                self.away_team_two_pointers * 2 +
+                                self.away_team_free_throws)
+
+        if self.current_quarter == 5:
+            self.end_match()
+        else:
+            self.save()
+
+    def add_quarter(self):
+        if self.current_quarter < 4:
+            self.current_quarter += 1
+        else:
+            self.current_quarter = 'extra'
+        self.save()
+
+    def simulate_game(self):
+        self.start_match()
+        for quarter in range(4):
+            for _ in range(random.randint(20, 30)):  # Simulate a number of plays
+                scoring_team = self.home_team if random.choice([True, False]) else self.away_team
+                points = random.choice([1, 2, 3])
+                self.record_basket(scoring_team, points)
+            self.add_quarter()
+        if self.home_team_score == self.away_team_score:
+            self.add_quarter()
+        self.end_match()

@@ -37,12 +37,25 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_bootstrap5',
     'rest_framework.authtoken',
+    'channels',
 
 ]
+
+ASGI_APPLICATION = 'Top5.asgi.application'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 SITE_ID = 1
 

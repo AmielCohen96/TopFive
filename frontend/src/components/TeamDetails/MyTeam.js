@@ -1,5 +1,5 @@
 import React from 'react';
-import './MyTeam.css';
+import './TeamDetailsCss/MyTeam.css';
 import CurrentPlayers from './CurrentPlayers.js';
 import CurrentCoach from './CurrentCoach.js';
 

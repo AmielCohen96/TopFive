@@ -15,7 +15,6 @@ class Command(BaseCommand):
 
 def simulate_all_matches():
     matches = Match.objects.filter(completed=False)  # Get all incomplete matches
-
     for match in matches:
         simulate_game(match)
 
@@ -24,7 +23,6 @@ def simulate_game(match):
     home_team = match.home_team
     away_team = match.away_team
 
-    # Initialize scores and stats
     stats = {
         'home_three_pointers': 0,
         'away_three_pointers': 0,
@@ -34,18 +32,9 @@ def simulate_game(match):
         'away_free_throws': 0
     }
 
-    # Define possible outcomes
-    outcomes = {
-        'score': 0,
-        'steal': 1,
-        'turnover': 2,
-        'block': 3,
-        'miss_rebound_offense': 4,
-        'miss_rebound_defense': 5
-    }
+    outcomes = ['score', 'steal', 'turnover', 'block', 'miss_rebound_offense', 'miss_rebound_defense']
 
     def calculate_shot_success(player, shot_type):
-        """Calculate if a shot is successful based on shot type and player stats"""
         success_rate = {
             'three': player.shooting3 / 100.0,
             'two': player.shooting2 / 100.0,
@@ -54,7 +43,6 @@ def simulate_game(match):
         return random.random() < success_rate.get(shot_type, 0)
 
     def handle_rebound(shot_missed, defending_player):
-        """Determine the result of a missed shot, including possible rebounds"""
         if shot_missed:
             if random.random() < (defending_player.defense / 100.0):
                 return 'block'
@@ -62,7 +50,6 @@ def simulate_game(match):
         return None
 
     def simulate_possession(attacking_team, defending_team):
-        """Simulate a single possession for an attacking team against a defending team"""
         attacking_player = random.choice(list(attacking_team.players.all()))
         shot_type = random.choice(['three', 'two', 'free_throw'])
         shot_successful = calculate_shot_success(attacking_player, shot_type)
@@ -83,23 +70,31 @@ def simulate_game(match):
                 elif shot_type == 'free_throw':
                     stats['away_free_throws'] += 1
         else:
-            rebound_result = handle_rebound(shot_missed=True,
-                                            defending_player=random.choice(list(defending_team.players.all())))
-            return rebound_result
+            handle_rebound(shot_missed=True, defending_player=random.choice(list(defending_team.players.all())))
 
-    # Simulate the game over the course of 1 minute
-    for _ in range(60):  # Simulate for 60 seconds
-        simulate_possession(home_team, away_team)
-        simulate_possession(away_team, home_team)
-        time.sleep(1)  # Wait 1 second between each possession
+    def play_quarter():
+        for _ in range(60):  # Simulate 60 seconds per quarter
+            simulate_possession(home_team, away_team)
+            simulate_possession(away_team, home_team)
+            time.sleep(1)  # Wait 1 second between each possession
 
-    # Update the match with the simulated stats
-    match.update_scores(
-        home_three_pointers=stats['home_three_pointers'],
-        away_three_pointers=stats['away_three_pointers'],
-        home_two_pointers=stats['home_two_pointers'],
-        away_two_pointers=stats['away_two_pointers'],
-        home_free_throws=stats['home_free_throws'],
-        away_free_throws=stats['away_free_throws']
-    )
+    quarter = 1
+    while quarter <= 4 or match.home_team_score == match.away_team_score:
+        if quarter <= 4:
+            print(f"Starting Quarter {quarter}...")
+        else:
+            print("Starting Overtime...")
 
+        play_quarter()
+
+        # Update scores after the quarter or overtime period
+        match.home_team_score = stats['home_three_pointers'] * 3 + stats['home_two_pointers'] * 2 + stats[
+            'home_free_throws']
+        match.away_team_score = stats['away_three_pointers'] * 3 + stats['away_two_pointers'] * 2 + stats[
+            'away_free_throws']
+
+        quarter += 1
+
+    match.completed = True
+    match.result = "draw" if match.home_team_score == match.away_team_score else "win"
+    match.save()

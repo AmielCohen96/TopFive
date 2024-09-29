@@ -1,8 +1,8 @@
 // frontend/src/components/LeagueTable.js
 import React, { useEffect, useState, useContext } from 'react';
-import './LeagueTable.css';
+import './LeagueCss/LeagueTable.css';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext.js';
+import AuthContext from '../../context/AuthContext.js';
 
 const LeagueTable = () => {
     const [teams, setTeams] = useState([]);

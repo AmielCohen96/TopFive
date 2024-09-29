@@ -1,8 +1,8 @@
 // frontend/src/components/CurrentBalance.js
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext.js';
-import './CurrentBalance.css';
+import AuthContext from '../../context/AuthContext.js';
+import './TransferCss/CurrentBalance.css';
 
 const CurrentBalance = ({ balance, setBalance }) => {
     const [loading, setLoading] = useState(true);

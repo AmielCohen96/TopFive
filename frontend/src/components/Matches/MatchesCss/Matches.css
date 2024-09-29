@@ -1,0 +1,197 @@
+/*.matches-page {*/
+/*    width: 80%;*/
+/*    margin: 20px auto;*/
+/*    background-color: #f0f4f8; !* Light background for the container *!*/
+/*    padding: 20px;*/
+/*    border-radius: 8px; !* Rounded corners *!*/
+/*    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); !* Subtle shadow *!*/
+/*    position: relative; !* Position relative for the scrollable area *!*/
+/*}*/
+
+/*.header-container {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    margin-bottom: 20px;*/
+/*}*/
+
+/*.back-link {*/
+/*    color: #ff5722; !* Orange color *!*/
+/*    text-decoration: none;*/
+/*    font-weight: bold;*/
+/*    font-size: 16px;*/
+/*}*/
+
+/*.back-link:hover {*/
+/*    color: #e64a19; !* Darker orange on hover *!*/
+/*    text-decoration: underline;*/
+/*}*/
+
+/*.filter-container {*/
+/*    display: flex;*/
+/*    gap: 6px;*/
+/*    align-items: center; !* Align items in the center vertically *!*/
+/*    margin-bottom: 10px; !* Space between filter and table *!*/
+/*}*/
+
+/*.filter-container input[type="date"] {*/
+/*    padding: 6px;*/
+/*    border-radius: 4px;*/
+/*    border: 1px solid #ddd;*/
+/*    width: 100px; !* Fixed width for date inputs *!*/
+/*}*/
+
+/*.filter-container button {*/
+/*    padding: 6px 12px;*/
+/*    border: none;*/
+/*    background-color: #ff5722; !* Orange background *!*/
+/*    color: white;*/
+/*    border-radius: 4px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+/*.filter-container button:hover {*/
+/*    background-color: #e64a19; !* Darker orange on hover *!*/
+/*}*/
+
+/*.matches-table-container {*/
+/*    max-height: calc(500px - 132px); !* Adjust height based on row height and filter section *!*/
+/*    overflow-y: auto; !* Enable vertical scrolling *!*/
+/*}*/
+
+/*.matches-table {*/
+/*    width: 100%;*/
+/*    border-collapse: collapse;*/
+/*    background-color: #ffffff; !* White background for the table *!*/
+/*    border-radius: 8px; !* Rounded corners for the table *!*/
+/*    overflow: hidden; !* Ensures rounded corners work on the table *!*/
+/*}*/
+
+/*.matches-table th, .matches-table td {*/
+/*    padding: 10px;*/
+/*    text-align: center;*/
+/*    border-bottom: 1px solid #ddd;*/
+/*    font-size: 16px; !* Font size adjustment *!*/
+/*    color: #333; !* Dark text color *!*/
+/*}*/
+
+/*.matches-table th {*/
+/*    background-color: #e0e7ef; !* Header background color *!*/
+/*    font-weight: bold;*/
+/*}*/
+
+/*.matches-table tr:nth-child(even) {*/
+/*    background-color: #f8fafc; !* Alternate row background color *!*/
+/*}*/
+
+/*.matches-table tr:hover {*/
+/*    background-color: #e9f3ff; !* Hover row background color *!*/
+/*}*/
+
+/*.matches-table tr.completed-match {*/
+/*    background-color: #ffebee; !* Light background color for completed matches *!*/
+/*}*/
+.matches-page {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #f0f4f8; /* Light background for the container */
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    position: relative; /* Position relative for the scrollable area */
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.back-link {
+    color: #ff5722; /* Orange color */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.back-link:hover {
+    color: #e64a19; /* Darker orange on hover */
+    text-decoration: underline;
+}
+
+.filter-container {
+    display: flex;
+    gap: 6px;
+    align-items: center; /* Align items in the center vertically */
+    margin-bottom: 10px; /* Space between filter and table */
+}
+
+.filter-container input[type="date"] {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 100px; /* Fixed width for date inputs */
+}
+
+.filter-container button {
+    padding: 6px 12px;
+    border: none;
+    background-color: #ff5722; /* Orange background */
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.filter-container button:hover {
+    background-color: #e64a19; /* Darker orange on hover */
+}
+
+.matches-table-container {
+    max-height: calc(500px - 132px); /* Adjust height based on row height and filter section */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.matches-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff; /* White background for the table */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures rounded corners work on the table */
+}
+
+.matches-table th, .matches-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px; /* Font size adjustment */
+    color: #333; /* Dark text color */
+}
+
+.matches-table th {
+    background-color: #e0e7ef; /* Header background color */
+    font-weight: bold;
+}
+
+.matches-table tr:nth-child(even) {
+    background-color: #f8fafc; /* Alternate row background color */
+}
+
+.matches-table tr:hover {
+    background-color: #e9f3ff; /* Hover row background color */
+}
+
+.matches-table tr.completed-match {
+    background-color: #ffebee; /* Light background color for completed matches */
+}
+
+.details-link {
+    color: #007bff; /* Blue color for the link */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.details-link:hover {
+    color: #0056b3; /* Darker blue on hover */
+    text-decoration: underline;
+}

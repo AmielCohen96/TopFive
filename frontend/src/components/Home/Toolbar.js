@@ -1,8 +1,8 @@
 // frontend/src/components/Toolbar.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext.js';
-import './Toolbar.css';
+import AuthContext from '../../context/AuthContext.js';
+import './HomeCss/Toolbar.css';
 
 const Toolbar = () => {
     const { isLoggedIn, logoutUser } = useContext(AuthContext);

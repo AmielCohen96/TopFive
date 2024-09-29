@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import './UpdateMatch.css';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext.js';
+import AuthContext from '../../../context/AuthContext.js';
 
 const UpdateMatch = ({ matchId }) => {
     const [homeScore, setHomeScore] = useState(0);

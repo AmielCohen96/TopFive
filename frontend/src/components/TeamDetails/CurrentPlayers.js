@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext.js';
-import './TransferTable.css'; // Use the same CSS as TransferTable for consistent styling
+import AuthContext from '../../context/AuthContext.js';
+import '../Transfer/TransferCss/TransferTable.css'; // Use the same CSS as TransferTable for consistent styling
 
 const CurrentPlayers = () => {
     const [players, setPlayers] = useState([]);

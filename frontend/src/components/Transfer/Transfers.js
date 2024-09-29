@@ -1,11 +1,11 @@
 // frontend/src/components/Transfers.js
 import React, { useState, useContext } from 'react';
-import './Transfers.css';
+import './TransferCss/Transfers.css';
 import TransferTable from './TransferTable.js';
 import CurrentBalance from './CurrentBalance.js';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import AuthContext from '../context/AuthContext.js';
+import AuthContext from '../../context/AuthContext.js';
 import axios from 'axios';
 
 const Transfers = () => {

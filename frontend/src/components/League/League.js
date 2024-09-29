@@ -1,6 +1,6 @@
 // frontend/src/components/League.js
 import React from 'react';
-import './League.css';
+import './LeagueCss/League.css';
 import LeagueTable from './LeagueTable.js';
 import {Link} from "react-router-dom";
 
