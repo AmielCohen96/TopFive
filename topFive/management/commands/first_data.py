@@ -2,10 +2,9 @@ import os
 
 import django
 from django.core.management.base import BaseCommand
-from topFive.models import Coach, Player, Team, League, Match
+from topFive.models import Coach, Player, Team, League
 from faker import Faker
 
-from .simulate_match import simulate_all_matches
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Top5.settings')
 

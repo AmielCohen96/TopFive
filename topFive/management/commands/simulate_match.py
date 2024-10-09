@@ -73,7 +73,7 @@ def simulate_game(match):
             handle_rebound(shot_missed=True, defending_player=random.choice(list(defending_team.players.all())))
 
     def play_quarter():
-        for _ in range(60):  # Simulate 60 seconds per quarter
+        for _ in range(10):  # Simulate 10 seconds per quarter
             simulate_possession(home_team, away_team)
             simulate_possession(away_team, home_team)
             time.sleep(1)  # Wait 1 second between each possession
