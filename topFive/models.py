@@ -306,7 +306,7 @@ class Match(models.Model):
             self.save()
 
     def add_quarter(self):
-        if self.current_quarter < 4:
+        if self.current_quarter < str(4):
             self.current_quarter += 1
         else:
             self.current_quarter = 'extra'

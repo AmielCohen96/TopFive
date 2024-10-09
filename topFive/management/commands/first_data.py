@@ -1,12 +1,10 @@
 import os
-from datetime import datetime, timedelta
 
 import django
 from django.core.management.base import BaseCommand
 from topFive.models import Coach, Player, Team, League, Match
 from faker import Faker
 
-from .league_create import create_match
 from .simulate_match import simulate_all_matches
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Top5.settings')
@@ -74,7 +72,6 @@ def create_leagues_and_teams():
         team.update_average_rating()
 
 
-create_match()
-simulate_all_matches()
+
 
 

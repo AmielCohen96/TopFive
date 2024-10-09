@@ -1,7 +1,5 @@
-from topFive.classes.Player import Player
-from topFive.classes.League import League
-from topFive.classes.Team import Team
-from topFive.classes.Coach import Coach
+from topFive.models import Player,League,Team,Coach
+
 
 league = League()
 i = 1
